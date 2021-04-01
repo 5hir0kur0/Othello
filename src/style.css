@@ -1,0 +1,109 @@
+.fieldBackground {
+    -fx-background-color: #c8c8c8;
+}
+
+.helpButton {
+    -fx-font-size: 1.7em;
+    -fx-font-weight: bold;
+    -fx-background-color: #a1b56c;
+    -fx-background-radius: 50%;
+    -fx-text-alignment: center;
+    -fx-text-origin: baseline;
+    -fx-alignment: baseline-center;
+    -fx-min-height: 3em;
+    -fx-max-height: 3em;
+    -fx-min-width: 3em;
+    -fx-max-width: 3em;
+}
+
+.skipButton {
+    -fx-font-size: 0.95em;
+    -fx-min-height: 3em;
+    -fx-max-height: 3em;
+    -fx-min-width: 3em;
+    -fx-max-width: 3em;
+    -fx-background-radius: 100000em;
+    -fx-border-color: #383838;
+    -fx-border-width: 1;
+    -fx-border-style: dashed;
+    /* originally set to 50%, but %-values seem to work differently for border-radius and background-radius,
+     * so it's now set to a ridiculously high value */
+    -fx-border-radius: 100000em;
+    -fx-text-alignment: center;
+    -fx-text-origin: baseline;
+    -fx-alignment: baseline-center;
+    -fx-min-height: 3em;
+    -fx-min-width: 3em;
+    /* just some ridiculously high value, to make the size "unlimited" */
+    -fx-max-height: 100000em;
+    -fx-max-width: 100000em;
+}
+
+.diskButton {
+    -fx-background-color: #c8c8c8;
+    /* originally set to 50%, but %-values seem to work differently for border-radius and background-radius,
+     * so it's now set to a ridiculously high value */
+    -fx-background-radius: 100000em;
+    -fx-border-color: #383838;
+    -fx-border-width: 1;
+    -fx-border-style: dashed;
+    /* originally set to 50%, but %-values seem to work differently for border-radius and background-radius,
+     * so it's now set to a ridiculously high value */
+    -fx-border-radius: 100000em;
+    -fx-text-alignment: center;
+    -fx-min-height: 4.2em;
+    -fx-max-height: 100em;
+    -fx-min-width: 4.2em;
+    -fx-max-width: 100em;
+    -fx-padding: 1em;
+}
+
+.blackButton {
+    -fx-background-color: #383838;
+    -fx-text-fill: #d8d8d8;
+    -fx-border-color: #383838;
+    -fx-border-width: 1;
+    -fx-border-style: solid;
+    -fx-border-radius: 50%;
+}
+
+.whiteButton {
+    -fx-background-color: #e8e8e8;
+    -fx-text-fill: #181818;
+    -fx-border-color: #383838;
+    -fx-border-width: 1;
+    -fx-border-style: solid;
+    -fx-border-radius: 50%;
+}
+
+.hoverError:hover {
+    /*-fx-effect: dropshadow(three-pass-box, #ab4642cc, 10, 0.42 , 0 , 0);*/
+    -fx-effect: none;
+    -fx-scale-x: 100%;
+    -fx-scale-y: 100%;
+}
+
+.hoverError:pressed {
+    -fx-effect: dropshadow(three-pass-box, #ab4642, 10, 0.42 , 0 , 0);
+    -fx-background-color: #ab4642;
+}
+
+.possibleMoveBlack {
+    -fx-background-color: #38383850;
+}
+
+.possibleMoveWhite {
+    -fx-background-color: #f8f8f880;
+}
+
+Button:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3) , 10, 0.42 , 0 , 0);
+    -fx-scale-x: 110%;
+    -fx-scale-y: 110%;
+}
+
+Button:pressed {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4) , 10, 0.42 , 0 , 0);
+    -fx-scale-x: 100%;
+    -fx-scale-y: 100%;
+}
