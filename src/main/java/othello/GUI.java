@@ -366,7 +366,7 @@ public class GUI extends Application {
         borderPane.setCenter(field);
         // use the same width and height as the start screen for the main scene
         final Scene scene = new Scene(borderPane, stage.getScene().getWidth(), stage.getScene().getHeight());
-        scene.getStylesheets().add("style.css");
+        scene.getStylesheets().add(Main.class.getClassLoader().getResource("style.css").toExternalForm());
         stage.setScene(scene);
         this.disableButtons(false);
         this.update();
