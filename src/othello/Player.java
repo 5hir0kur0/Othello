@@ -51,7 +51,7 @@ public class Player {
      *
      * @param state the current state of the game (should not be {@code null})
      * @return the index of the tile to be placed. (should not be {@code null},
-     * but instead {@link java.util.Optional#EMPTY})
+     * but instead {@link Optional#empty()})
      */
     public Optional<Index> makeMove(FieldState state) {
         return Optional.empty(); // this method is only valid for AI players

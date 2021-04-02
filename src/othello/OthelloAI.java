@@ -1,9 +1,6 @@
 package othello;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,8 +53,8 @@ public class OthelloAI extends Player {
      * @param possibleMoves The possible moves for the player (AI). Must not be {@code null}.
      * @param state         The current game state. Must not be {@code null}.
      * @param player        The player. Must not be {@code null}.
-     * @param all           Add this to OPTIONS_TO_EXPLORE_LIMIT. If it's smaller than 0, ignore it.
-     * @return A set of moves to explore (limited by {@link this#OPTIONS_TO_EXPLORE_LIMIT}).
+     * @param add           Added to {@link OthelloAI#OPTIONS_TO_EXPLORE_LIMIT} or ignored if it's smaller than 0.
+     * @return A set of moves to explore (limited by {@link OthelloAI#OPTIONS_TO_EXPLORE_LIMIT}).
      */
     private static Set<MoveValue> exploreMoves(Set<Index> possibleMoves, FieldState state, FieldState.FieldType player, int add) {
         // sort moves by rating and return the top n (n=OPTIONS_TO_EXPLORE_LIMIT)
@@ -91,20 +88,13 @@ public class OthelloAI extends Player {
     }
 
     /**
-     * Max part of the Alpha Beta Minimax algorithm.
-     * See <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea">https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea</a>
-     *
-     * @param state        The current game state. Must not be {@code null}.
-     * @param player       The player. Must not be {@code null}.
-     * @param depth        The current recursion level.
-     * @param bestMaxSoFar The best maximum value that was found so far.
-     * @param bestMinSoFar The best minimum value that was found so far.
-     * @return The actual move is stored in {@link this#savedMove}. This return value is only needed for the recursion.
-     * (The return value is the rating of the current subtree.)
+     * The parameters are a subset of the parameters of
+     * {@link OthelloAI#max(FieldState, FieldState.FieldType, int, int, int)}
+     * or {@link OthelloAI#min(FieldState, FieldState.FieldType, int, int, int)}.
+     * @return the rating if the recursion should end or {@link OptionalInt#empty()} otherwise
      */
-    private int max(FieldState state, FieldState.FieldType player,
-                    int depth, int bestMaxSoFar, int bestMinSoFar) {
-        final Set<Index> possibleMoves = state.findPossibleMoves(player, true);
+    private OptionalInt checkIfRecursionEnd(int depth, Set<Index> possibleMoves, FieldState state,
+                                            FieldState.FieldType player) {
         if (depth == 0 || possibleMoves.size() <= 1 || state.gameOver()) {
             if (possibleMoves.size() == 1) {
                 // save move if in top-level call
@@ -113,16 +103,37 @@ public class OthelloAI extends Player {
                     possibleMoves.forEach(move -> this.savedMove = move);
                 }
                 // if there is only one move left, execute it
-                return state.makeMove(player, possibleMoves.toArray(new Index[1])[0])
-                        .rateState(player, OthelloAI.FIELD_WEIGHTS);
+                return OptionalInt.of(state.makeMove(player, possibleMoves.toArray(new Index[1])[0])
+                        .rateState(player, OthelloAI.FIELD_WEIGHTS));
             }
-            return state.rateState(player, OthelloAI.FIELD_WEIGHTS);
+            return OptionalInt.of(state.rateState(player, OthelloAI.FIELD_WEIGHTS));
         }
-        final FieldState.FieldType opponent = player == FieldState.FieldType.WHITE ?
-                FieldState.FieldType.BLACK : FieldState.FieldType.WHITE;
+        return OptionalInt.empty();
+    }
+
+    /**
+     * Max part of the Alpha Beta Minimax algorithm.
+     * See <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea">https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea</a>
+     *
+     * @param state        The current game state. Must not be {@code null}.
+     * @param player       The player. Must not be {@code null}.
+     * @param depth        The current recursion level.
+     * @param bestMaxSoFar The best maximum value that was found so far.
+     * @param bestMinSoFar The best minimum value that was found so far.
+     * @return The actual move is stored in {@link OthelloAI#savedMove}. This return value is only needed for the recursion.
+     * (The return value is the rating of the current subtree.)
+     */
+    private int max(FieldState state, FieldState.FieldType player,
+                    int depth, int bestMaxSoFar, int bestMinSoFar) {
+        final Set<Index> possibleMoves = state.findPossibleMoves(player, true);
+        final OptionalInt over = this.checkIfRecursionEnd(depth, possibleMoves, state, player);
+        if (over.isPresent()) {
+            return over.getAsInt();
+        }
+        final FieldState.FieldType opponent = player.opponent();
+        int maxVal = bestMaxSoFar;
         // see wiki page https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea for explanation
         // about the algorithm
-        int maxVal = bestMaxSoFar;
                                                                          // add a small offset to the number of explored moves
         																 // (at top levels)
     for (MoveValue move : exploreMoves(possibleMoves, state, player, depth/3)) {
@@ -146,27 +157,17 @@ public class OthelloAI extends Player {
      * @param depth        The current recursion level.
      * @param bestMaxSoFar The best maximum value that was found so far.
      * @param bestMinSoFar The best minimum value that was found so far.
-     * @return The actual move is stored in {@link this#savedMove}. This return value is only needed for the recursion.
+     * @return The actual move is stored in {@link OthelloAI#savedMove}. This return value is only needed for the recursion.
      * (The return value is the rating of the current subtree.)
      */
     private int min(FieldState state, FieldState.FieldType player,
                     int depth, int bestMaxSoFar, int bestMinSoFar) {
         final Set<Index> possibleMoves = state.findPossibleMoves(player, true);
-        if (depth == 0 || possibleMoves.size() <= 1 || state.gameOver()) {
-            if (possibleMoves.size() == 1) {
-                // save move if in top-level call
-                if (depth == OthelloAI.SEARCH_DEPTH) {
-                    // there is only one, so the forEach will only run once
-                    possibleMoves.forEach(move -> this.savedMove = move);
-                }
-                // if there is only one move left, execute it
-                return state.makeMove(player, possibleMoves.toArray(new Index[1])[0])
-                        .rateState(player, OthelloAI.FIELD_WEIGHTS);
-            }
-            return state.rateState(player, OthelloAI.FIELD_WEIGHTS);
+        final OptionalInt over = this.checkIfRecursionEnd(depth, possibleMoves, state, player);
+        if (over.isPresent()) {
+            return over.getAsInt();
         }
-        final FieldState.FieldType opponent = player == FieldState.FieldType.WHITE ?
-                FieldState.FieldType.BLACK : FieldState.FieldType.WHITE;
+        final FieldState.FieldType opponent = player.opponent();
         int minVal = bestMinSoFar;
         // see wiki page https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning#Core_idea for explanation
         // about the algorithm

@@ -3,6 +3,7 @@ package othello;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -14,7 +15,7 @@ import java.util.*;
  * Manages high scores.
  */
 public class Highscores {
-    private static final Charset CHARSET = Charset.forName("UTF-8");
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
     private final Path path;
     private final List<Score> scores;
 
@@ -22,8 +23,8 @@ public class Highscores {
      * Create a new Highscores object.
      *
      * @param path The path to the high scores file. Must not be {@code null}.
-     * @throws IOException    {@link Files#readAllLines(Path)}
-     * @throws ParseException {@link DateFormat#parse(String)}
+     * @throws IOException    if {@link Files#readAllLines(Path)} does
+     * @throws ParseException if {@link DateFormat#parse(String)} does
      */
     public Highscores(Path path) throws IOException, ParseException {
         this.path = Objects.requireNonNull(path, "path must not be null");
@@ -42,7 +43,7 @@ public class Highscores {
      * Add a high score. This automatically saves to disk.
      *
      * @param score The score to be added. Must not be {@code null}.
-     * @throws IOException {@link BufferedWriter#write(String)}
+     * @throws IOException if {@link BufferedWriter#write(String)} does
      */
     public void addScore(Score score) throws IOException {
         this.scores.add(Objects.requireNonNull(score, "score must not be null"));
@@ -52,8 +53,8 @@ public class Highscores {
     /**
      * Reads the high scores from disk.
      *
-     * @throws IOException    {@link Files#readAllLines(Path)}
-     * @throws ParseException {@link DateFormat#parse(String)}
+     * @throws IOException    if {@link Files#readAllLines(Path)} does
+     * @throws ParseException if {@link DateFormat#parse(String)} does
      */
     private void readScores() throws IOException, ParseException {
         if (!Files.isRegularFile(this.path)) return;
@@ -71,7 +72,7 @@ public class Highscores {
     /**
      * Writes the high scores to disk.
      *
-     * @throws IOException {@link BufferedWriter#write(String)}
+     * @throws IOException if {@link BufferedWriter#write(String)} does
      */
     private void writeScores() throws IOException {
         // This is a try-with-resources statement. It automatically calls the close() method.
@@ -145,7 +146,7 @@ public class Highscores {
         }
 
         /**
-         * Create a score from a string created by {@link this#toString()}.
+         * Create a score from a string created by {@link Highscores#toString()}.
          *
          * @param input The input string. Must not be {@code null}.
          * @return The created score.
@@ -162,7 +163,7 @@ public class Highscores {
         }
 
         /**
-         * @see {@link Object#toString()}
+         * @see Object#toString()
          */
         @Override
         public String toString() {

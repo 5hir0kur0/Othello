@@ -69,7 +69,7 @@ public final class Index {
      */
     @Override
     public boolean equals(Object other) {
-        return other != null && other instanceof Index && this.hashCode() == other.hashCode();
+        return other instanceof Index && this.hashCode() == other.hashCode();
     }
 
     /**

@@ -108,7 +108,7 @@ public class GUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         primaryStage.setTitle(GUI.WINDOW_TITLE);
 
         primaryStage.setMinHeight(GUI.MIN_HEIGHT);
@@ -139,7 +139,7 @@ public class GUI extends Application {
 
         // make the grid scale correctly
         final ColumnConstraints columnConstraints = new ColumnConstraints();
-        columnConstraints.setPercentWidth(100 / 2);
+        columnConstraints.setPercentWidth(50);
         columnConstraints.setHgrow(Priority.ALWAYS);
         // two columns, so two times
         grid.getColumnConstraints().add(columnConstraints);
@@ -215,15 +215,9 @@ public class GUI extends Application {
         white.setToggleGroup(startGroup);
         white.setOnAction(action -> {
             GUI.this.currentPlayer = FieldState.FieldType.WHITE;
-            if (GUI.this.mode == GameMode.PLAYER_VERSUS_PLAYER) {
-                blackField.setDisable(false);
-                whiteField.setDisable(false);
-                return;
-            } else {
-                // don't allow entering a name for the AI player
-                blackField.setDisable(true);
-                whiteField.setDisable(false);
-            }
+            // don't allow entering a name for the AI player
+            blackField.setDisable(GUI.this.mode == GameMode.PLAYER_VERSUS_AI);
+            whiteField.setDisable(false);
         });
         startGroup.selectToggle(black);
         grid.add(startingPlayer, ++col, row++);
@@ -291,7 +285,7 @@ public class GUI extends Application {
         // UI controls
         final GridPane controls = new GridPane();
         int controlsCol = 0;
-        controls.setHgap(3 * GUI.PADDING / 2);
+        controls.setHgap((3 * GUI.PADDING) / 2.0);
         controls.setVgap(GUI.PADDING);
         controls.setPadding(new Insets(0, 0, GUI.PADDING, 0));
         borderPane.setTop(controls);
@@ -393,11 +387,9 @@ public class GUI extends Application {
             }
         });
         final Set<Index> possibleMoves = this.state.findPossibleMoves(this.currentPlayer, true);
-        possibleMoves.forEach(idx -> {
-            GUI.this.guiField[idx.xPos][idx.yPos].getStyleClass().setAll(
-                    this.currentPlayer == FieldState.FieldType.BLACK ? POSSIBLE_MOVE_BLACK_CLASS : POSSIBLE_MOVE_WHITE_CLASS,
-                    DISK_CLASS);
-        });
+        possibleMoves.forEach(idx -> GUI.this.guiField[idx.xPos][idx.yPos].getStyleClass().setAll(
+                this.currentPlayer == FieldState.FieldType.BLACK ? POSSIBLE_MOVE_BLACK_CLASS : POSSIBLE_MOVE_WHITE_CLASS,
+                DISK_CLASS));
         // if the player can't make a move, "encourage" him to click the skip button
         if (possibleMoves.isEmpty() && !this.state.gameOver()) {
             this.skipButton.setScaleX(1.2);
@@ -445,6 +437,14 @@ public class GUI extends Application {
         }
         // if the move fails, makeMove() throws an exception and the execution stops here
         this.state = this.state.makeMove(this.currentPlayer, Index.of(xPos, yPos));
+        this.finishPlayerMove();
+    }
+
+    /**
+     * This method is called after a player finishes a move.
+     * It toggles the player or allows the AI to make a move, depending on the game mode.
+     */
+    private void finishPlayerMove() {
         switch (this.mode) {
             case PLAYER_VERSUS_PLAYER:
                 this.toggleCurrentPlayer();
@@ -609,21 +609,7 @@ public class GUI extends Application {
      * @param ignored This parameter is ignored.
      */
     private void skipButtonClicked(MouseEvent ignored) {
-        switch (this.mode) {
-            case PLAYER_VERSUS_PLAYER:
-                this.toggleCurrentPlayer();
-                break;
-            case PLAYER_VERSUS_AI:
-                // if the game is in the AI mode, skipping causes an AI move
-                this.disableButtons(true);
-                this.aiMove();
-                this.disableButtons(false);
-                break;
-        }
-        this.update();
-        if (this.state.gameOver()) {
-            this.gameOver();
-        }
+        this.finishPlayerMove();
     }
 
     /**
@@ -641,7 +627,7 @@ public class GUI extends Application {
      * @param ignored This parameter is ignored.
      */
     private void highscoreButtonClicked(MouseEvent ignored) {
-        final TableView table = new TableView();
+        final TableView<ScoreDataModel> table = new TableView<>();
         table.setEditable(false);
 
         // add high scores to table
@@ -655,16 +641,16 @@ public class GUI extends Application {
 
         // set up the properties corresponding to the table columns
 
-        final TableColumn scoreCol = new TableColumn(SCORE_COL_TEXT);
+        final TableColumn<ScoreDataModel, Integer> scoreCol = new TableColumn<>(SCORE_COL_TEXT);
         scoreCol.setCellValueFactory(
                 new PropertyValueFactory<>("score")
         );
         scoreCol.setMinWidth(100);
-        final TableColumn nameCol = new TableColumn(NAME_COL_TEXT);
+        final TableColumn<ScoreDataModel, String> nameCol = new TableColumn<>(NAME_COL_TEXT);
         nameCol.setCellValueFactory(
                 new PropertyValueFactory<>("name")
         );
-        final TableColumn dateCol = new TableColumn(DATe_COL_TEXT);
+        final TableColumn<ScoreDataModel, Date> dateCol = new TableColumn<>(DATe_COL_TEXT);
         dateCol.setCellValueFactory(
                 new PropertyValueFactory<>("date")
         );
@@ -716,6 +702,7 @@ public class GUI extends Application {
         /**
          * @return the date.
          */
+        @SuppressWarnings("unused")
         public String getDate() {
             return date.get();
         }
@@ -723,6 +710,7 @@ public class GUI extends Application {
         /**
          * @return the date property.
          */
+        @SuppressWarnings("unused")
         public SimpleStringProperty dateProperty() {
             return date;
         }
@@ -730,6 +718,7 @@ public class GUI extends Application {
         /**
          * @return the name.
          */
+        @SuppressWarnings("unused")
         public String getName() {
             return name.get();
         }
@@ -737,6 +726,7 @@ public class GUI extends Application {
         /**
          * @return the name property.
          */
+        @SuppressWarnings("unused")
         public SimpleStringProperty nameProperty() {
             return name;
         }
@@ -744,6 +734,7 @@ public class GUI extends Application {
         /**
          * @return the score.
          */
+        @SuppressWarnings("unused")
         public int getScore() {
             return score.get();
         }
@@ -751,6 +742,7 @@ public class GUI extends Application {
         /**
          * @return the score property.
          */
+        @SuppressWarnings("unused")
         public SimpleIntegerProperty scoreProperty() {
             return score;
         }

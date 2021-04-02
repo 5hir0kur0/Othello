@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Represents a Othello (8x8) field's current state.
@@ -25,7 +26,7 @@ public class FieldState {
      * Construct a new immutable Othello field with the starting state for Othello.
      */
     public FieldState() {
-        this.field = new FieldType[8][8]; // Reversi is always played on a 8x8 board
+        this.field = new FieldType[8][8]; // Othello is played on a 8x8 board
         // Fill the new field with empty tiles
         this.forEach((index, type) -> this.setField(index, FieldType.EMPTY, false));
         // set the initial field state
@@ -186,7 +187,7 @@ public class FieldState {
     /**
      * Calculate the winner.
      *
-     * @return The {@link FieldType} of the winner if there is a winner or {@link java.util.Optional#EMPTY} if the game
+     * @return The {@link FieldType} of the winner if there is a winner or {@link Optional#empty()} if the game
      * is not yet over or {@link FieldType#EMPTY} if the game was a draw.
      */
     public Optional<FieldType> calculateWinner() {
@@ -220,6 +221,7 @@ public class FieldState {
      * @throws IllegalArgumentException If the player is not valid.
      * @throws NullPointerException     If the player is {@code null}.
      */
+    @SuppressWarnings("unused")
     public int getPoints(FieldType player) {
         FieldState.validatePlayer(player);
         final int num = this.countFields(player);
@@ -335,26 +337,16 @@ public class FieldState {
         return res;
     }
 
+
     /**
-     * Find diagonal and vertical lines starting from an index where there is at least one disk of the opponent
-     * in either direction and a disk of the player itself following it.
-     * Those are the lines that the player is allowed to flip if he places a disk at that index.
-     *
-     * @param index  The start index. Must not be {@code null}.
-     * @param player The opponent. Must be either {@link FieldType#BLACK} or {@link FieldType#WHITE}.
-     * @return A list of possible vertical, horizontal and diagonal lines.
-     * @throws NullPointerException     If the player or the index are {@code null}.
-     * @throws IllegalArgumentException If the player is not valid.
+     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * The parameters are the same.
+     * @return the vertical lines that can be flipped starting from {@code index}.
      */
-    public List<List<Index>> findLinesToFlip(Index index, FieldType player) {
-        Objects.requireNonNull(index, "parameter index must not be null");
-        FieldState.validatePlayer(player);
-        final FieldType opponent = player == FieldType.WHITE ? FieldType.BLACK : FieldType.WHITE;
-        final List<List<Index>> res = new ArrayList<>(4); // create a set to store the result
-
+    private List<Index> findVerticalLineToFlip(Index index, FieldType player) {
         // calculate the lines to flip in vertical direction
-
         final List<Index> verticalTmp1 = new ArrayList<>(4);
+        final FieldType opponent = player.opponent();
         boolean playerReached = false;
         for (int y = index.yPos + 1; y < this.field[index.xPos].length; ++y) {
             if (this.getField(index.xPos, y) == opponent) {
@@ -381,14 +373,20 @@ public class FieldState {
             verticalTmp2.clear();
         }
         verticalTmp1.addAll(verticalTmp2);
-        if (!verticalTmp1.isEmpty()) {
-            res.add(verticalTmp1);
-        }
+        return verticalTmp1;
+    }
 
+
+    /**
+     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * The parameters are the same.
+     * @return the horizontal line that can be flipped starting from {@code index}.
+     */
+    private List<Index> findHorizontalLineToFlip(Index index, FieldType player) {
         // calculate the lines to flip in horizontal direction
-
         final List<Index> horizontalTmp1 = new ArrayList<>(4);
-        playerReached = false;
+        final FieldType opponent = player.opponent();
+        boolean playerReached = false;
         for (int x = index.xPos + 1; x < this.field.length; ++x) {
             if (this.getField(x, index.yPos) == opponent) {
                 horizontalTmp1.add(Index.of(x, index.yPos));
@@ -414,17 +412,22 @@ public class FieldState {
             horizontalTmp2.clear();
         }
         horizontalTmp1.addAll(horizontalTmp2);
-        if (!horizontalTmp1.isEmpty()) {
-            res.add(horizontalTmp1);
-        }
+        return horizontalTmp1;
+    }
 
-        // calculate the lines to flip in diagonal direction
 
+    /**
+     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * The parameters are the same.
+     * @return the top-left to bottom-right diagonal line that can be flipped starting from {@code index}.
+     */
+    private List<Index> findFirstDiagonalLineToFlip(Index index, FieldType player) {
         final List<Index> diagonal1Tmp1 = new ArrayList<>(4);
-        playerReached = false;
+        final FieldType opponent = player.opponent();
+        boolean playerReached = false;
         for (int offset = 1; (offset + index.xPos) < 8 && (offset + index.xPos) >= 0
                 && (offset + index.yPos) < 8 && (offset + index.yPos) >= 0; ++offset) {
-            Index tmp = Index.of(index.xPos + offset, index.yPos + offset);
+            final Index tmp = Index.of(index.xPos + offset, index.yPos + offset);
             if (this.getField(tmp) == opponent) {
                 diagonal1Tmp1.add(tmp);
             } else if (this.getField(tmp) == player) {
@@ -439,7 +442,7 @@ public class FieldState {
         playerReached = false;
         for (int offset = -1; (offset + index.xPos) < 8 && (offset + index.xPos) >= 0
                 && (offset + index.yPos) < 8 && (offset + index.yPos) >= 0; --offset) {
-            Index tmp = Index.of(index.xPos + offset, index.yPos + offset);
+            final Index tmp = Index.of(index.xPos + offset, index.yPos + offset);
             if (this.getField(tmp) == opponent) {
                 diagonal1Tmp2.add(tmp);
             } else if (this.getField(tmp) == player) {
@@ -451,12 +454,19 @@ public class FieldState {
             diagonal1Tmp2.clear();
         }
         diagonal1Tmp1.addAll(diagonal1Tmp2);
-        if (!diagonal1Tmp1.isEmpty()) {
-            res.add(diagonal1Tmp1);
-        }
+        return diagonal1Tmp1;
+    }
 
+
+    /**
+     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * The parameters are the same.
+     * @return the top-right to bottom-left diagonal line that can be flipped starting from {@code index}.
+     */
+    private List<Index> findSecondDiagonalLineToFlip(Index index, FieldType player) {
         final List<Index> diagonal2Tmp1 = new ArrayList<>(4);
-        playerReached = false;
+        boolean playerReached = false;
+        final FieldType opponent = player.opponent();
         for (int offset = 1; (index.xPos + offset) < 8
                 && (index.xPos + offset) >= 0
                 && (index.yPos - offset) < 8
@@ -490,11 +500,32 @@ public class FieldState {
             diagonal2Tmp2.clear();
         }
         diagonal2Tmp1.addAll(diagonal2Tmp2);
-        if (!diagonal2Tmp1.isEmpty()) {
-            res.add(diagonal2Tmp1);
-        }
+        return diagonal2Tmp1;
+    }
 
-        return res;
+    /**
+     * Find diagonal and vertical lines starting from an index where there is at least one disk of the opponent
+     * in either direction and a disk of the player itself following it.
+     * Those are the lines that the player is allowed to flip if he places a disk at that index.
+     *
+     * @param index  The start index. Must not be {@code null}.
+     * @param player The opponent. Must be either {@link FieldType#BLACK} or {@link FieldType#WHITE}.
+     * @return A list of possible vertical, horizontal and diagonal lines.
+     * @throws NullPointerException     If the player or the index are {@code null}.
+     * @throws IllegalArgumentException If the player is not valid.
+     */
+    public List<List<Index>> findLinesToFlip(Index index, FieldType player) {
+        Objects.requireNonNull(index, "parameter index must not be null");
+        FieldState.validatePlayer(player);
+
+        final List<Index> vertical = findVerticalLineToFlip(index, player);
+        final List<Index> horizontal = findHorizontalLineToFlip(index, player);
+        final List<Index> diagonal1 = findFirstDiagonalLineToFlip(index, player);
+        final List<Index> diagonal2 = findSecondDiagonalLineToFlip(index, player);
+
+        return Stream.of(vertical, horizontal, diagonal1, diagonal2)
+                .filter(l -> !l.isEmpty())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -573,10 +604,24 @@ public class FieldState {
 
     /**
      * Represents the type of a single item on the field.
-     * An item can either be EMTPY (no disk present) or BLACK or WHITE.
+     * An item can either be EMPTY (no disk present) or BLACK or WHITE.
      */
     public enum FieldType {
-        EMPTY, BLACK, WHITE
+        EMPTY, BLACK, WHITE;
+
+        /**
+         * @return the opponent player of this field (i.e. the type with the opposite color)
+         * @throws IllegalStateException if run on an {@code EMPTY} field
+         */
+        public FieldType opponent() {
+            switch (this) {
+                case BLACK:
+                    return WHITE;
+                case WHITE:
+                    return BLACK;
+            }
+            throw new IllegalStateException("tried to get opponent of empty field");
+        }
     }
 
     /**
