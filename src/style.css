@@ -93,7 +93,7 @@
 }
 
 .possibleMoveWhite {
-    -fx-background-color: #f8f8f880;
+    -fx-background-color: #D2D2D2;
 }
 
 Button:hover {
