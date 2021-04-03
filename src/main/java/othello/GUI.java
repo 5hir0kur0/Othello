@@ -25,6 +25,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static othello.Localization.L10N;
+
 /**
  * JavaFX GUI for the project.
  */
@@ -52,40 +54,14 @@ public class GUI extends Application {
     private static final String POSSIBLE_MOVE_BLACK_CLASS = "possibleMoveBlack";
     private static final String POSSIBLE_MOVE_WHITE_CLASS = "possibleMoveWhite";
 
-    // UI strings
-    private static final String PLAYER_LABEL_TEXT = "Spieler: %p";
-    private static final String SKIP_TOOLTIP = "Klicke „Pass“, um einen Zug auszusetzen.";
-    private static final String BLACK_PLAYER_TEXT = "Schwarz";
-    private static final String WHITE_PLAYER_TEXT = "Wei\u00DF     ";
-    private static final String SKIP_BUTTON_TEXT = "Pass";
-    private static final String RESTART_BUTTON_TEXT = "Neustart";
-    private static final String HIGHSCORE_TEXT = "Highscores";
-    private static final String WINDOW_TITLE = "Othello";
-    private static final String GAME_MODE_LABEL_TEXT = "Spielmodus";
-    private static final String PVP_MODE_TEXT = "Spieler gegen Spieler";
-    private static final String AI_MODE_TEXT = "Spieler gegen KI";
-    private static final String SELECT_STARTING_PLAYER_TEXT = "Auswahl des beginnenden Spielers";
-    private static final String START_GAME_TEXT = "Spiel starten";
-    private static final String NEW_GAME_TEXT = "Neues Spiel starten";
-    private static final String AI_TEXT = "KI          ";
-    private static final String ENTER_NAME_TEXT = "Spielernamen eingeben (f\u00FCr Highscore-Speicherung)";
-    private static final String WINNER_TEXT = "Der Spieler %n hat gewonnen!";
-    private static final String AI_WON_TEXT = "Die KI hat gewonnen!";
-    private static final String DRAW_TEXT = "Das Spiel endet unentschieden";
-    private static final String SCORE_TEXT = "Score: %n";
-    private static final String SCORE_COL_TEXT = "Score";
-    private static final String NAME_COL_TEXT = "Name";
-    private static final String DATe_COL_TEXT = "Datum";
-    private static final String HIGHSCORE_LIST_TEXT = "Highscores";
-
     private final Button[][] guiField = new Button[8][8];
     /**
      * Skip button that changes color depending on the current player.
      */
-    final private Button skipButton = new Button(SKIP_BUTTON_TEXT);
-    final private Button restartButton = new Button(RESTART_BUTTON_TEXT);
-    final private Label playerLabel = new Label(PLAYER_LABEL_TEXT);
-    final private Label scoreLabel = new Label(BLACK_PLAYER_TEXT + ": 0\n" + WHITE_PLAYER_TEXT + ": 0");
+    final private Button skipButton = new Button(L10N.get("skip_button_text"));
+    final private Button restartButton = new Button(L10N.get("restart_button_text"));
+    final private Label playerLabel = new Label(L10N.get("player_label_text"));
+    final private Label scoreLabel = new Label(L10N.get("black_player_text") + ": 0\n" + L10N.get("white_player_text") + ": 0");
     /**
      * stores the game state
      */
@@ -109,7 +85,7 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(GUI.WINDOW_TITLE);
+        primaryStage.setTitle(L10N.get("window_title"));
 
         primaryStage.setMinHeight(GUI.MIN_HEIGHT);
         primaryStage.setMinWidth(GUI.MIN_WIDTH);
@@ -134,8 +110,8 @@ public class GUI extends Application {
         this.reset();
 
         // add skip tooltip
-        this.playerLabel.setTooltip(new Tooltip(SKIP_TOOLTIP));
-        this.skipButton.setTooltip(new Tooltip(SKIP_TOOLTIP));
+        this.playerLabel.setTooltip(new Tooltip(L10N.get("skip_tooltip")));
+        this.skipButton.setTooltip(new Tooltip(L10N.get("skip_tooltip")));
 
         // make the grid scale correctly
         final ColumnConstraints columnConstraints = new ColumnConstraints();
@@ -145,31 +121,31 @@ public class GUI extends Application {
         grid.getColumnConstraints().add(columnConstraints);
         grid.getColumnConstraints().add(columnConstraints);
 
-        final Label newGame = new Label(NEW_GAME_TEXT);
+        final Label newGame = new Label(L10N.get("new_game_text"));
         newGame.setFont(new Font(BIG_FONT_SIZE));
         grid.add(newGame, 0, 0, 2, 1);
 
         // text fields for name entry
-        final TextField blackField = new TextField(BLACK_PLAYER_TEXT.replaceAll("\\s+", ""));
+        final TextField blackField = new TextField(L10N.get("black_player_text").replaceAll("\\s+", ""));
         blackField.textProperty().addListener(action ->
                 GUI.this.players[FieldState.FieldType.BLACK.ordinal()] =
                         new Player(FieldState.FieldType.BLACK, blackField.getText()));
-        final TextField whiteField = new TextField(WHITE_PLAYER_TEXT.replaceAll("\\s+", ""));
+        final TextField whiteField = new TextField(L10N.get("white_player_text").replaceAll("\\s+", ""));
         whiteField.textProperty().addListener(action ->
                 GUI.this.players[FieldState.FieldType.WHITE.ordinal()] =
                         new Player(FieldState.FieldType.WHITE, whiteField.getText()));
-        this.players[FieldState.FieldType.WHITE.ordinal()] = new Player(FieldState.FieldType.WHITE, WHITE_PLAYER_TEXT);
-        this.players[FieldState.FieldType.BLACK.ordinal()] = new Player(FieldState.FieldType.BLACK, BLACK_PLAYER_TEXT);
+        this.players[FieldState.FieldType.WHITE.ordinal()] = new Player(FieldState.FieldType.WHITE, L10N.get("white_player_text"));
+        this.players[FieldState.FieldType.BLACK.ordinal()] = new Player(FieldState.FieldType.BLACK, L10N.get("black_player_text"));
 
         int row = 1;
         int col = 0;
 
         // game mode selection
-        final Label gameMode = new Label(GAME_MODE_LABEL_TEXT);
+        final Label gameMode = new Label(L10N.get("game_mode_label_text"));
         final ToggleGroup modeGroup = new ToggleGroup();
-        final RadioButton pvpMode = new RadioButton(PVP_MODE_TEXT);
+        final RadioButton pvpMode = new RadioButton(L10N.get("pvp_mode_text"));
         pvpMode.setToggleGroup(modeGroup);
-        final RadioButton aiMode = new RadioButton(AI_MODE_TEXT);
+        final RadioButton aiMode = new RadioButton(L10N.get("ai_mode_text"));
         aiMode.setToggleGroup(modeGroup);
         // the UI should not allow entering a name for the AI
         aiMode.setOnAction(action -> {
@@ -192,9 +168,9 @@ public class GUI extends Application {
         row = 1;
 
         // starting player selection
-        final Label startingPlayer = new Label(SELECT_STARTING_PLAYER_TEXT);
+        final Label startingPlayer = new Label(L10N.get("select_starting_player_text"));
         final ToggleGroup startGroup = new ToggleGroup();
-        final RadioButton black = new RadioButton(BLACK_PLAYER_TEXT);
+        final RadioButton black = new RadioButton(L10N.get("black_player_text"));
         black.setToggleGroup(startGroup);
         black.setOnAction(action -> {
             GUI.this.currentPlayer = FieldState.FieldType.BLACK;
@@ -207,7 +183,7 @@ public class GUI extends Application {
                 blackField.setDisable(false);
             }
         });
-        final RadioButton white = new RadioButton(WHITE_PLAYER_TEXT);
+        final RadioButton white = new RadioButton(L10N.get("white_player_text"));
         white.setToggleGroup(startGroup);
         white.setOnAction(action -> {
             GUI.this.currentPlayer = FieldState.FieldType.WHITE;
@@ -222,9 +198,9 @@ public class GUI extends Application {
 
         // name entry
         col = 0;
-        final Label enterNames = new Label(ENTER_NAME_TEXT);
-        final Label blackName = new Label(BLACK_PLAYER_TEXT);
-        final Label whiteName = new Label(WHITE_PLAYER_TEXT);
+        final Label enterNames = new Label(L10N.get("enter_name_text"));
+        final Label blackName = new Label(L10N.get("black_player_text"));
+        final Label whiteName = new Label(L10N.get("white_player_text"));
         grid.add(enterNames, col, row++, 2, 1);
         grid.add(blackName, col, row);
         grid.add(blackField, col + 1, row++);
@@ -232,7 +208,7 @@ public class GUI extends Application {
         grid.add(whiteField, col + 1, row++);
 
         // start button
-        final Button start = new Button(START_GAME_TEXT);
+        final Button start = new Button(L10N.get("start_game_text"));
         start.setFont(new Font(BIG_FONT_SIZE));
         start.setMaxHeight(Double.MAX_VALUE);
         start.setMaxWidth(Double.MAX_VALUE);
@@ -301,7 +277,7 @@ public class GUI extends Application {
         controls.add(this.restartButton, controlsCol++, 0);
 
         // highscore button
-        final Button highscoreButton = new Button(HIGHSCORE_TEXT);
+        final Button highscoreButton = new Button(L10N.get("highscore_text"));
         highscoreButton.setOnMouseClicked(this::highscoreButtonClicked);
         highscoreButton.setMaxHeight(Double.MAX_VALUE);
         controls.add(highscoreButton, controlsCol++, 0);
@@ -402,21 +378,21 @@ public class GUI extends Application {
         switch (this.mode) {
             case PLAYER_VERSUS_PLAYER -> {
                 this.playerLabel.setText(
-                        PLAYER_LABEL_TEXT.replaceAll("%p",
-                                this.currentPlayer == FieldState.FieldType.WHITE ? WHITE_PLAYER_TEXT : BLACK_PLAYER_TEXT));
+                        L10N.get("player_label_text").replaceAll("%p",
+                                this.currentPlayer == FieldState.FieldType.WHITE ? L10N.get("white_player_text") : L10N.get("black_player_text")));
                 this.scoreLabel.setText(
-                        BLACK_PLAYER_TEXT + ": " + this.state.countFields(FieldState.FieldType.BLACK) + "\n" +
-                                WHITE_PLAYER_TEXT + ": " + this.state.countFields(FieldState.FieldType.WHITE));
+                        L10N.get("black_player_text") + ": " + this.state.countFields(FieldState.FieldType.BLACK) + "\n" +
+                                L10N.get("white_player_text") + ": " + this.state.countFields(FieldState.FieldType.WHITE));
             }
             case PLAYER_VERSUS_AI -> {
                 this.playerLabel.setText(
-                        PLAYER_LABEL_TEXT.replaceAll("%p",
-                                this.currentPlayer == FieldState.FieldType.WHITE ? WHITE_PLAYER_TEXT : BLACK_PLAYER_TEXT)
-                                .replaceAll("%a", this.aiPlayer == FieldState.FieldType.WHITE ? WHITE_PLAYER_TEXT : BLACK_PLAYER_TEXT));
-                final String player = this.currentPlayer == FieldState.FieldType.BLACK ? BLACK_PLAYER_TEXT : WHITE_PLAYER_TEXT;
+                        L10N.get("player_label_text").replaceAll("%p",
+                                this.currentPlayer == FieldState.FieldType.WHITE ? L10N.get("white_player_text") : L10N.get("black_player_text"))
+                                .replaceAll("%a", this.aiPlayer == FieldState.FieldType.WHITE ? L10N.get("white_player_text") : L10N.get("black_player_text")));
+                final String player = this.currentPlayer == FieldState.FieldType.BLACK ? L10N.get("black_player_text") : L10N.get("white_player_text");
                 this.scoreLabel.setText(
                         player + ": " + this.state.countFields(this.currentPlayer) + "\n" +
-                                AI_TEXT + ": " + this.state.countFields(this.aiPlayer));
+                                L10N.get("ai_text") + ": " + this.state.countFields(this.aiPlayer));
             }
         }
     }
@@ -525,16 +501,16 @@ public class GUI extends Application {
                     this.highscores.addScore(new Highscores.Score(now, winner.getName(), score));
                     // remove the padding whitespace
                     final String color = winner.getType() == FieldState.FieldType.WHITE ?
-                            WHITE_PLAYER_TEXT.replaceAll("\\s+", "") :
-                            BLACK_PLAYER_TEXT.replaceAll("\\s+", "");
+                            L10N.get("white_player_text").replaceAll("\\s+", "") :
+                            L10N.get("black_player_text").replaceAll("\\s+", "");
                     // if the name is the default name (i.e. the color) there's no need to display it twice
                     final String replacement = color.equals(winner.getName()) ?
                             winner.getName() : winner.getName() + " (" + color + ")";
-                    alertHeading = WINNER_TEXT.replace("%n", replacement);
+                    alertHeading = L10N.get("winner_text").replace("%n", replacement);
                 } else {
-                    alertHeading = AI_WON_TEXT;
+                    alertHeading = L10N.get("ai_won_text");
                 }
-                alertBody = SCORE_TEXT.replace("%n", Integer.toString(score));
+                alertBody = L10N.get("score_text").replace("%n", Integer.toString(score));
             } catch (IOException | ParseException e) {
                 // change the alert type and display an error instead of the actual message
                 alertType = Alert.AlertType.WARNING;
@@ -543,9 +519,9 @@ public class GUI extends Application {
                 e.printStackTrace();
             }
         } else { // if the game was a draw
-            alertHeading = DRAW_TEXT;
+            alertHeading = L10N.get("draw_text");
             final int score = GUI.this.state.countFields(FieldState.FieldType.BLACK);
-            alertBody = SCORE_TEXT.replace("%n", Integer.toString(score));
+            alertBody = L10N.get("score_text").replace("%n", Integer.toString(score));
         }
 
         // display an alert box announcing the winner
@@ -572,22 +548,9 @@ public class GUI extends Application {
     private void helpButtonClicked(MouseEvent ignored) {
         final Alert.AlertType type = Alert.AlertType.INFORMATION;
         final Alert alert = new Alert(type);
-        alert.setTitle("Spielregeln");
-        alert.setHeaderText("Spielregeln");
-        // sorry, but platform-independent file handling is difficult, so I hard-coded the text...
-        final String rules = "<html><body>" +
-                "<p>Es wird auf einem Brett mit 8×8 Feldern gespielt.</p>" +
-                "<p>Als Startaufstellung werden vor dem Spielbeginn zwei wei\u00DFe und zwei schwarze Steine auf die mittleren Felder des Bretts gelegt, je zwei diagonal gegen\u00FCberliegende mit der gleichen Farbe \u0028Bild\u0029.</p>" +
-                "<p>Die Zahl der Steine jedes Spielers ist unbegrenzt.</p>" +
-                "<p>Die Spieler ziehen abwechselnd, Schwarz beginnt. Man setzt entweder einen Stein mit der eigenen Farbe auf ein leeres Feld, oder man passt.</p>" +
-                "<p>Man darf nur so setzen, dass ausgehend von dem gesetzten Stein in beliebiger Richtung \u0028senkrecht, waagerecht oder diagonal\u0029 ein oder mehrere gegnerische Steine anschlie\u00DFen und danach wieder ein eigener Stein liegt. Es muss also mindestens ein gegnerischer Stein von dem gesetzten Stein und einem anderen eigenen Stein in gerader Linie eingeschlossen werden. Dabei m\u00FCssen alle Felder zwischen den beiden eigenen Steinen von gegnerischen Steinen besetzt sein.</p>" +
-                "<p>Alle gegnerischen Steine, die so eingeschlossen werden, wechseln die Farbe, indem sie umgedreht werden. Dies geschieht als Teil desselben Zuges, bevor der Gegner zum Zug kommt. Ein Zug kann mehrere Reihen gegnerischer Steine gleichzeitig einschlie\u00DFen, die dann alle umgedreht werden. Wenn aber ein gerade umgedrehter Stein weitere gegnerische Steine einschlie\u00DFt, werden diese nicht umgedreht.</p>" +
-                "<p>Wenn keiner mehr einen Stein setzen kann, ist das Spiel beendet.</p>" +
-                "<p>Der Spieler, der am Ende die meisten Steine seiner Farbe auf dem Brett hat, gewinnt. Haben beide die gleiche Zahl, ist das Spiel unentschieden.</p>" +
-                "<p>Die H\u00F6he des Gewinns zu ermitteln, werden die Steine des Gewinners gez\u00E4hlt.</p>" +
-                "<p><br></p>" +
-                "Angepasst von: <a href='https://de.wikipedia.org/wiki/Othello_(Spiel)'>https://de.wikipedia.org/wiki/Othello_(Spiel)</a>" +
-                "</body></html>";
+        alert.setTitle(L10N.get("game_rules_text"));
+        alert.setHeaderText(L10N.get("game_rules_text"));
+        final String rules = L10N.get("game_rules_html");
         WebView webView = new WebView();
         webView.getEngine().loadContent(rules);
         webView.setPrefSize(MIN_WIDTH, MIN_HEIGHT);
@@ -635,16 +598,16 @@ public class GUI extends Application {
 
         // set up the properties corresponding to the table columns
 
-        final TableColumn<ScoreDataModel, Integer> scoreCol = new TableColumn<>(SCORE_COL_TEXT);
+        final TableColumn<ScoreDataModel, Integer> scoreCol = new TableColumn<>(L10N.get("score_col_text"));
         scoreCol.setCellValueFactory(
                 new PropertyValueFactory<>("score")
         );
         scoreCol.setMinWidth(100);
-        final TableColumn<ScoreDataModel, String> nameCol = new TableColumn<>(NAME_COL_TEXT);
+        final TableColumn<ScoreDataModel, String> nameCol = new TableColumn<>(L10N.get("name_col_text"));
         nameCol.setCellValueFactory(
                 new PropertyValueFactory<>("name")
         );
-        final TableColumn<ScoreDataModel, Date> dateCol = new TableColumn<>(DATe_COL_TEXT);
+        final TableColumn<ScoreDataModel, Date> dateCol = new TableColumn<>(L10N.get("date_col_text"));
         dateCol.setCellValueFactory(
                 new PropertyValueFactory<>("date")
         );
@@ -661,8 +624,8 @@ public class GUI extends Application {
         // display high score table in an alert box
         final Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().setContent(table);
-        alert.setTitle(HIGHSCORE_LIST_TEXT);
-        alert.setHeaderText(HIGHSCORE_LIST_TEXT);
+        alert.setTitle(L10N.get("highscore_list_text"));
+        alert.setHeaderText(L10N.get("highscore_list_text"));
         alert.show();
     }
 

@@ -112,7 +112,7 @@ public class FieldState {
      * @param xPos        The x position. Must be non-negative and smaller than 8.
      * @param yPos        The y position. Must be non-negative and smaller than 8.
      * @param type        The new type. Must not be {@code null}.
-     * @param checkIfFlip If {@code true}, throw an exception if the disk is't being flipped from
+     * @param checkIfFlip If {@code true}, throw an exception if the disk isn't being flipped from
      *                    {@link FieldType#WHITE} to {@link FieldType#BLACK} or the other way around.
      * @throws IllegalArgumentException If the position or type is invalid or
      *                                  if the parameter checkIfFlip is {@code true} and the action did not cause a flip.
@@ -136,7 +136,7 @@ public class FieldState {
      *
      * @param index       The index. Must not be {@code null}.
      * @param type        The new type. Must not be {@code null}.
-     * @param checkIfFlip If {@code true}, throw an exception if the disk is't being flipped from
+     * @param checkIfFlip If {@code true}, throw an exception if the disk isn't being flipped from
      *                    {@link FieldType#WHITE} to {@link FieldType#BLACK} or the other way around.
      * @throws NullPointerException If the parameter index is {@code null}.
      */
@@ -381,7 +381,7 @@ public class FieldState {
 
 
     /**
-     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * Used by {@link FieldState#findLinesToFlip(Index, FieldType)}.
      * The parameters are the same.
      * @return the horizontal line that can be flipped starting from {@code index}.
      */
@@ -420,7 +420,7 @@ public class FieldState {
 
 
     /**
-     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * Used by {@link FieldState#findLinesToFlip(Index, FieldType)}.
      * The parameters are the same.
      * @return the top-left to bottom-right diagonal line that can be flipped starting from {@code index}.
      */
@@ -462,7 +462,7 @@ public class FieldState {
 
 
     /**
-     * Used by {@link this#findLinesToFlip(Index, FieldType)}.
+     * Used by {@link FieldState#findLinesToFlip(Index, FieldType)}.
      * The parameters are the same.
      * @return the top-right to bottom-left diagonal line that can be flipped starting from {@code index}.
      */
