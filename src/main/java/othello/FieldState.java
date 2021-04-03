@@ -46,6 +46,9 @@ public class FieldState {
         this.field = new FieldType[8][8];
         // copy the old state to this one
         this.forEach((index, type) -> this.setField(index, oldState.getField(index), false));
+        this.findPossibleMovesCache = null;
+        this.findPossibleMovesPlayerCache = null;
+        this.findPossibleMovesDeepCheckCache = false;
     }
 
     /**

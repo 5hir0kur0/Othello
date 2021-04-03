@@ -175,12 +175,8 @@ public class GUI extends Application {
         aiMode.setOnAction(action -> {
             GUI.this.mode = GameMode.PLAYER_VERSUS_AI;
             switch (GUI.this.currentPlayer) {
-                case BLACK:
-                    whiteField.setDisable(true);
-                    break;
-                case WHITE:
-                    blackField.setDisable(true);
-                    break;
+                case BLACK -> whiteField.setDisable(true);
+                case WHITE -> blackField.setDisable(true);
             }
         });
         modeGroup.selectToggle(pvpMode);
@@ -366,7 +362,7 @@ public class GUI extends Application {
         borderPane.setCenter(field);
         // use the same width and height as the start screen for the main scene
         final Scene scene = new Scene(borderPane, stage.getScene().getWidth(), stage.getScene().getHeight());
-        scene.getStylesheets().add(Main.class.getClassLoader().getResource("style.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(Main.class.getClassLoader().getResource("style.css")).toExternalForm());
         stage.setScene(scene);
         this.disableButtons(false);
         this.update();
@@ -401,18 +397,18 @@ public class GUI extends Application {
         // update skip button color
         this.skipButton.getStyleClass().setAll(SKIP_CLASS,
                 this.currentPlayer == FieldState.FieldType.WHITE ? WHITE_BUTTON_CLASS : BLACK_BUTTON_CLASS);
+        // update current player and score labels
+        // update current player and score labels
         switch (this.mode) {
-            case PLAYER_VERSUS_PLAYER:
-                // update current player and score labels
+            case PLAYER_VERSUS_PLAYER -> {
                 this.playerLabel.setText(
                         PLAYER_LABEL_TEXT.replaceAll("%p",
                                 this.currentPlayer == FieldState.FieldType.WHITE ? WHITE_PLAYER_TEXT : BLACK_PLAYER_TEXT));
                 this.scoreLabel.setText(
                         BLACK_PLAYER_TEXT + ": " + this.state.countFields(FieldState.FieldType.BLACK) + "\n" +
                                 WHITE_PLAYER_TEXT + ": " + this.state.countFields(FieldState.FieldType.WHITE));
-                break;
-            case PLAYER_VERSUS_AI:
-                // update current player and score labels
+            }
+            case PLAYER_VERSUS_AI -> {
                 this.playerLabel.setText(
                         PLAYER_LABEL_TEXT.replaceAll("%p",
                                 this.currentPlayer == FieldState.FieldType.WHITE ? WHITE_PLAYER_TEXT : BLACK_PLAYER_TEXT)
@@ -421,7 +417,7 @@ public class GUI extends Application {
                 this.scoreLabel.setText(
                         player + ": " + this.state.countFields(this.currentPlayer) + "\n" +
                                 AI_TEXT + ": " + this.state.countFields(this.aiPlayer));
-                break;
+            }
         }
     }
 
@@ -446,15 +442,13 @@ public class GUI extends Application {
      */
     private void finishPlayerMove() {
         switch (this.mode) {
-            case PLAYER_VERSUS_PLAYER:
-                this.toggleCurrentPlayer();
-                break;
-            case PLAYER_VERSUS_AI:
-                // the buttons should be disabled while the AI is thinking
+            case PLAYER_VERSUS_PLAYER -> this.toggleCurrentPlayer();
+            // the buttons should be disabled while the AI is thinking
+            case PLAYER_VERSUS_AI -> {
                 this.disableButtons(true);
                 this.aiMove();
                 this.disableButtons(false);
-                break;
+            }
         }
         this.update();
         if (this.state.gameOver()) {
@@ -514,7 +508,7 @@ public class GUI extends Application {
         Alert.AlertType alertType = Alert.AlertType.INFORMATION;
 
         // this shouldn't happen, but it doesn't hurt to check
-        if (!winnerType.isPresent()) return;
+        if (winnerType.isEmpty()) return;
 
         String alertHeading;
         String alertBody;
